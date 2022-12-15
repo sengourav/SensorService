@@ -9,6 +9,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import org.json.JSONArray
@@ -17,6 +18,9 @@ import org.json.JSONObject
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
+//import java.text.DateFormat
+//import java.text.SimpleDateFormat
+import java.util.*
 
 class BackgroundService: Service(),SensorEventListener {
     lateinit var sensor: Sensor
@@ -42,6 +46,7 @@ class BackgroundService: Service(),SensorEventListener {
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         sensorManager.registerListener(this,sensor,SensorManager.SENSOR_DELAY_NORMAL)
         createNotificationChannel()
+
 
     }
 
@@ -77,6 +82,13 @@ class BackgroundService: Service(),SensorEventListener {
                 jsonObject.put("x", p0!!.values[0])
                 jsonObject.put("y", p0!!.values[1])
                 jsonObject.put("z", p0!!.values[2])
+//                val simple: DateFormat = SimpleDateFormat(
+//                    "dd MMM yyyy HH:mm:ss"
+//                )
+//                val result = Date(p0!!.timestamp/1000000L)
+//                jsonObject.put("timestamp", p0!!.timestamp/1000000L)
+                jsonObject.put("timestamp(ms)",System.currentTimeMillis() + (p0!!.timestamp - SystemClock.elapsedRealtimeNanos()) / 1000000L)
+
             }catch (e:JSONException){
                 e.printStackTrace()
             }

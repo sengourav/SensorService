@@ -9,6 +9,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.IBinder
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import org.json.JSONArray
 import org.json.JSONException
@@ -57,6 +58,8 @@ class BackgroundService2 :Service(),SensorEventListener{
             jsonObject = JSONObject()
             try {
                 jsonObject.put("light value", p0!!.values[0])
+               // jsonObject.put("timestamp", p0!!.timestamp/1000000L)
+                jsonObject.put("timestamp(ms)",System.currentTimeMillis() + (p0!!.timestamp - SystemClock.elapsedRealtimeNanos()) / 1000000L)
             }catch (e: JSONException){
                 e.printStackTrace()
             }
