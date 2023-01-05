@@ -1,5 +1,6 @@
 package com.example.sensorservice
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -9,71 +10,89 @@ import android.hardware.SensorManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import com.amplifyframework.AmplifyException
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
+import com.amplifyframework.core.Amplify
+import com.amplifyframework.storage.s3.AWSS3StoragePlugin
 import com.example.sensorservice.databinding.ActivityMainBinding
+import java.io.File
+
 
 class MainActivity : AppCompatActivity(),SensorEventListener {
     lateinit var binding: ActivityMainBinding
+
     //lateinit var stop:Button
-   // lateinit var save:Button
+    // lateinit var save:Button
     lateinit var sensorManager: SensorManager
     lateinit var gyroSensor: Sensor
-    var x1:Float = 0.0f;var x2:Float = 0.0f;var y1:Float=0.0f;var y2:Float=0.0f
+    var x1: Float = 0.0f;
+    var x2: Float = 0.0f;
+    var y1: Float = 0.0f;
+    var y2: Float = 0.0f
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when(event?.action){
-            MotionEvent.ACTION_DOWN ->{
+        when (event?.action) {
+            MotionEvent.ACTION_DOWN -> {
                 x1 = event.x
                 y1 = event.y
             }
-            MotionEvent.ACTION_UP->{
-                x2=event.x
-                y2=event.y
-                if (x1<x2){
-                    val intent:Intent = Intent(this,MainActivity4::class.java)
+            MotionEvent.ACTION_UP -> {
+                x2 = event.x
+                y2 = event.y
+                if (x1 < x2) {
+                    val intent: Intent = Intent(this, MainActivity4::class.java)
                     startActivity(intent)
-                }
-                else{
-                    val i:Intent = Intent(this,MainActivity2::class.java)
+                } else {
+                    val i: Intent = Intent(this, MainActivity2::class.java)
                     startActivity(i)
                 }
             }
         }
         return true
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-       // binding = ActivityMainBinding.inflate(layoutInflater)
+        // binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
+        configureAmplify()
 
-        sensorManager= getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
 //        binding.button.setOnClickListener {
 //            changeActivity()
 //        }
         setContentView(R.layout.activity_main)
-        sensorManager= getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        gyroSensor= sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-        sensorManager.registerListener(this,gyroSensor,SensorManager.SENSOR_DELAY_NORMAL)
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        sensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL)
 
-        val save:Button = findViewById(R.id.collect_data)
-        val stop:Button=findViewById(R.id.stop_collecting)
+        val save: Button = findViewById(R.id.collect_data)
+        val stop: Button = findViewById(R.id.stop_collecting)
 
         save.setOnClickListener {
-            val serviceIntent =Intent(this,BackgroundService::class.java)
+            val serviceIntent = Intent(this, BackgroundService::class.java)
             startService(serviceIntent)
         }
         stop.setOnClickListener {
-            val serviceIntent =Intent(this,BackgroundService::class.java)
+            val serviceIntent = Intent(this, BackgroundService::class.java)
             stopService(serviceIntent)
+
+            uploadFile()
         }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if(event?.sensor?.type==Sensor.TYPE_GYROSCOPE){
-            val gyroText:TextView=findViewById(R.id.Gyro_Sensor)
-            gyroText.text = "Gyro Value \nx= ${event!!.values[0]}\n\n" + "y = ${event.values[1]}\n\n"+"z = ${event.values[2]}"}
+        if (event?.sensor?.type == Sensor.TYPE_GYROSCOPE) {
+            val gyroText: TextView = findViewById(R.id.Gyro_Sensor)
+            gyroText.text =
+                "Gyro Value \nx= ${event!!.values[0]}\n\n" + "y = ${event.values[1]}\n\n" + "z = ${event.values[2]}"
+        }
 
     }
 
@@ -85,4 +104,27 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
         sensorManager.unregisterListener(this)
         super.onDestroy()
     }
+
+    private fun configureAmplify() {
+        try {
+            // Add these lines to add the AWSCognitoAuthPlugin and AWSS3StoragePlugin plugins
+            Amplify.addPlugin(AWSCognitoAuthPlugin())
+            Amplify.addPlugin(AWSS3StoragePlugin())
+            Amplify.configure(applicationContext)
+
+            Log.i("MyAmplifyApp", "Initialized Amplify")
+        } catch (error: AmplifyException) {
+            Log.e("MyAmplifyApp", "Could not initialize Amplify", error)
+        }
+    }
+
+    private fun uploadFile() {
+        val exampleFile = File(applicationContext.externalCacheDir, "gyro.json")
+        Amplify.Storage.uploadFile("Gyroscope", exampleFile,
+            { Log.i("MyAmplifyApp", "Successfully uploaded: ${it.key}") },
+            { Log.e("MyAmplifyApp", "Upload failed", it) }
+        )
+    }
+
+
 }

@@ -8,10 +8,13 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import com.amplifyframework.core.Amplify
+import java.io.File
 
 class MainActivity4 : AppCompatActivity(),SensorEventListener {
     lateinit var sensorManager: SensorManager
@@ -53,6 +56,7 @@ class MainActivity4 : AppCompatActivity(),SensorEventListener {
         stop.setOnClickListener {
             val serviceIntent =Intent(this,BackgroundService4::class.java)
             stopService(serviceIntent)
+            uploadFile()
         }
         magnoSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
         sensorManager.registerListener(this, magnoSensor, SensorManager.SENSOR_DELAY_NORMAL)
@@ -73,5 +77,12 @@ class MainActivity4 : AppCompatActivity(),SensorEventListener {
         sensorManager.unregisterListener(this)
         super.onDestroy()
 
+    }
+    private fun uploadFile() {
+        val exampleFile = File(applicationContext.externalCacheDir, "Magno.json")
+        Amplify.Storage.uploadFile("Magnetometer", exampleFile,
+            { Log.i("MyAmplifyApp", "Successfully uploaded: ${it.key}") },
+            { Log.e("MyAmplifyApp", "Upload failed", it) }
+        )
     }
 }

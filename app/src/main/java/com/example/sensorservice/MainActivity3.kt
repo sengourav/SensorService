@@ -8,9 +8,12 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.TextView
+import com.amplifyframework.core.Amplify
+import java.io.File
 
 class MainActivity3 : AppCompatActivity(),SensorEventListener {
     lateinit var accelSensor : Sensor
@@ -51,6 +54,7 @@ class MainActivity3 : AppCompatActivity(),SensorEventListener {
         stop.setOnClickListener {
             val serviceIntent =Intent(this,BackgroundService3::class.java)
             stopService(serviceIntent)
+            uploadFile()
         }
         //getting sensor services
         sensorManager= getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -73,6 +77,14 @@ class MainActivity3 : AppCompatActivity(),SensorEventListener {
 
     override fun onDestroy() {
         sensorManager.unregisterListener(this)
+
         super.onDestroy()
+    }
+    private fun uploadFile() {
+        val exampleFile = File(applicationContext.externalCacheDir, "Accel.json")
+        Amplify.Storage.uploadFile("Accelerometer", exampleFile,
+            { Log.i("MyAmplifyApp", "Successfully uploaded: ${it.key}") },
+            { Log.e("MyAmplifyApp", "Upload failed", it) }
+        )
     }
 }
