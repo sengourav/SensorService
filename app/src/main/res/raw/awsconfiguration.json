@@ -1,0 +1,16 @@
+﻿{
+    "UserAgent": "aws-amplify-cli/0.1.0",
+    "Version": "1.0",
+    "IdentityManager": {
+        "Default": {}
+    },
+    "AppSync": {
+        "Default": {
+            "ApiUrl": "https://jhkvr34wgja3hj44dpzet4es2q.appsync-api.ap-south-1.amazonaws.com/graphql",
+            "Region": "ap-south-1",
+            "AuthMode": "API_KEY",
+            "ApiKey": "da2-zuf5iekpozhp5krgvu2wtm6apy",
+            "ClientDatabasePrefix": "sensorservice-staging_API_KEY"
+        }
+    }
+}

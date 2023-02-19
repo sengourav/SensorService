@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.sensorservice">
+    package="com.example.sensorservice" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +13,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SensorService">
+        android:theme="@style/Theme.SensorService" >
+        <activity
+            android:name=".MainActivity5"
+            android:exported="false" />
         <activity
             android:name=".MainActivity4"
             android:exported="false" />
@@ -25,19 +28,19 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name=".broadcastReceiver"/>
 
         <service android:name=".BackgroundService" />
         <service android:name=".BackgroundService2" />
-        <service android:name=".BackgroundService3"/>
-        <service android:name=".BackgroundService4"/>
-
+        <service android:name=".BackgroundService3" />
+        <service android:name=".BackgroundService4" />
     </application>
 
 </manifest>

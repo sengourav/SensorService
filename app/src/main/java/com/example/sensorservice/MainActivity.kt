@@ -1,5 +1,10 @@
 package com.example.sensorservice
 
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -22,10 +27,15 @@ import com.amplifyframework.core.Amplify
 import com.amplifyframework.storage.s3.AWSS3StoragePlugin
 import com.example.sensorservice.databinding.ActivityMainBinding
 import java.io.File
+import java.util.*
 
 
 class MainActivity : AppCompatActivity(),SensorEventListener {
     lateinit var binding: ActivityMainBinding
+    private var alarmMgr: AlarmManager?=null
+    private lateinit var alarmIntent: PendingIntent
+    val CHANNEL_ID = "MySensorServiceChannel"
+    var name = "MyOtherChannel"
 
     //lateinit var stop:Button
     // lateinit var save:Button
@@ -34,7 +44,7 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
     var x1: Float = 0.0f;
     var x2: Float = 0.0f;
     var y1: Float = 0.0f;
-    var y2: Float = 0.0f
+    var y2: Float = 0.0f;
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
@@ -61,7 +71,23 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
         super.onCreate(savedInstanceState)
         // binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
+        createNotificationChannel()
         configureAmplify()
+        alarmMgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        intent = Intent(this, broadcastReceiver::class.java)
+        alarmIntent=PendingIntent.getBroadcast(this,0,intent,0)
+        val calendar: Calendar = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY,17)
+            set(Calendar.MINUTE,5)
+        }
+        alarmMgr?.setInexactRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            //AlarmManager.INTERVAL_DAY,
+            AlarmManager.INTERVAL_DAY,
+            alarmIntent
+        )
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
 //        binding.button.setOnClickListener {
@@ -124,6 +150,17 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
             { Log.i("MyAmplifyApp", "Successfully uploaded: ${it.key}") },
             { Log.e("MyAmplifyApp", "Upload failed", it) }
         )
+    }
+
+    public fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val mChannel =
+                NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT)
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(mChannel)
+        }
+
     }
 
 

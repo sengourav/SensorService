@@ -45,21 +45,9 @@ class BackgroundService: Service(),SensorEventListener {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         sensorManager.registerListener(this,sensor,SensorManager.SENSOR_DELAY_NORMAL)
-        createNotificationChannel()
-
+        MainActivity().createNotificationChannel()
 
     }
-
-        private fun createNotificationChannel() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-               val mChannel =
-                    NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT)
-                val notificationManager =
-                    getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.createNotificationChannel(mChannel)
-            }
-
-        }
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
