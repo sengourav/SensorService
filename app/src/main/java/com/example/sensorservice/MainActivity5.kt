@@ -1,5 +1,6 @@
 package com.example.sensorservice
 
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Environment
 import android.util.JsonReader
@@ -69,6 +70,10 @@ class MainActivity5 : AppCompatActivity(),View.OnClickListener{
 
     override fun onClick(v: View?) {
         val b :Button = v as Button
+        ansAButton.setBackgroundColor(getColor(R.color.purple_200))
+        ansBButton.setBackgroundColor(getColor(R.color.purple_200))
+        ansCButton.setBackgroundColor(getColor(R.color.purple_200))
+        ansDButton.setBackgroundColor(getColor(R.color.purple_200))
         if(b!!.id==R.id.button5){
             index=index+1
             if(index==QuestionAnswer().questions.size){
@@ -94,19 +99,24 @@ class MainActivity5 : AppCompatActivity(),View.OnClickListener{
                     bufferedWriter.append(jsonArray.toString())
                     bufferedWriter.close()
 
-            }}
+            }
+            }
             else
                 loadQuestion()
         }
         else if(b!!.id==R.id.button1){
+            b.setBackgroundColor(Color.YELLOW)
             jsonObject.put(QuestionAnswer().jsonques[index],v.text)
         }
         else if(b!!.id==R.id.button2){
+            b.setBackgroundColor(Color.YELLOW)
             jsonObject.put(QuestionAnswer().jsonques[index],v.text)
         }
         else if(b!!.id==R.id.button3){
+            b.setBackgroundColor(Color.YELLOW)
             jsonObject.put(QuestionAnswer().jsonques[index],v.text)
         }else{
+            b.setBackgroundColor(Color.YELLOW)
             jsonObject.put(QuestionAnswer().jsonques[index],v.text)
         }
 

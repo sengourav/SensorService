@@ -14,7 +14,7 @@ class broadcastReceiver:BroadcastReceiver(){
     val CHANNEL_ID = "MySensorServiceChannel"
     override fun onReceive(p0: Context, p1: Intent?) {
         var intent:Intent= Intent(p0,MainActivity5::class.java)
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK   or Intent.FLAG_ACTIVITY_NEW_TASK)
         var pendingIntent:PendingIntent=PendingIntent.getActivity(p0,0,intent,0)
         val notification = NotificationCompat.Builder(p0,CHANNEL_ID)
             .setContentTitle("Survey")

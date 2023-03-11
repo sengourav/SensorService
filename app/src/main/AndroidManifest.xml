@@ -36,7 +36,6 @@
             </intent-filter>
         </activity>
         <receiver android:name=".broadcastReceiver"/>
-
         <service android:name=".BackgroundService" />
         <service android:name=".BackgroundService2" />
         <service android:name=".BackgroundService3" />

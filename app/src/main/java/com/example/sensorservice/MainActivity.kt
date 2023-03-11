@@ -1,3 +1,4 @@
+
 package com.example.sensorservice
 
 import android.app.AlarmManager
@@ -78,8 +79,8 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
         alarmIntent=PendingIntent.getBroadcast(this,0,intent,0)
         val calendar: Calendar = Calendar.getInstance().apply {
             timeInMillis = System.currentTimeMillis()
-            set(Calendar.HOUR_OF_DAY,17)
-            set(Calendar.MINUTE,5)
+            set(Calendar.HOUR_OF_DAY,12)
+            set(Calendar.MINUTE,40)
         }
         alarmMgr?.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
