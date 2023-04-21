@@ -12,12 +12,17 @@ import android.util.Log
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.TextView
+import baseSettings
 import com.amplifyframework.core.Amplify
 import java.io.File
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
-class MainActivity3 : AppCompatActivity(),SensorEventListener {
+class MainActivity3 : baseSettings(),SensorEventListener {
     lateinit var accelSensor : Sensor
     lateinit var sensorManager: SensorManager
+    lateinit var textView: TextView
+    val decimalFormat=DecimalFormat("#.##")
     var x1:Float = 0.0f;var x2:Float = 0.0f;var y1:Float=0.0f;var y2:Float=0.0f
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
@@ -61,14 +66,25 @@ class MainActivity3 : AppCompatActivity(),SensorEventListener {
         //registering listener the sensor
         accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         sensorManager.registerListener(this,accelSensor,SensorManager.SENSOR_DELAY_NORMAL)
-
+        textView=findViewById(R.id.accel_max)
+        textView.text="Maximum range : ${accelSensor.maximumRange.toString()}"
+        mChart=findViewById(R.id.lineChart3)
+        commonSettings(Sensor.TYPE_ACCELEROMETER)
+        mChart.description.text="Accelerometer Data Visualization"
+        mChart.setDrawBorders(true)
+        startPlot()
+        decimalFormat.roundingMode= RoundingMode.DOWN
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
         if(event?.sensor?.type==Sensor.TYPE_ACCELEROMETER){
             val accelText: TextView =findViewById(R.id.textView)
-            accelText.text = "Accel Value\n x = ${event!!.values[0]}\n" + "y = ${event.values[1]}\n"+"z = ${event.values[2]}\n"}
+            accelText.text = "Accel Value\n x = ${decimalFormat.format(event!!.values[0])}m/s2\n\n" + "y = ${decimalFormat.format(event.values[1])}m/s2\n\n"+"z = ${decimalFormat.format(event.values[2])}m/s2"
+            if (plotData){
+                addEntry(event)
+                plotData=false}
 
+        }
     }
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
@@ -76,8 +92,8 @@ class MainActivity3 : AppCompatActivity(),SensorEventListener {
     }
 
     override fun onDestroy() {
+        thread?.interrupt()
         sensorManager.unregisterListener(this)
-
         super.onDestroy()
     }
     private fun uploadFile() {

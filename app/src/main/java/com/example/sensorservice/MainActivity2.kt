@@ -13,12 +13,17 @@ import android.view.MotionEvent
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import baseSettings
 import com.amplifyframework.core.Amplify
 import java.io.File
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
-class MainActivity2 : AppCompatActivity(),SensorEventListener {
+class MainActivity2 : baseSettings(),SensorEventListener {
     lateinit var sensorManager: SensorManager
     lateinit var lightSensor: Sensor
+    lateinit var textView: TextView
+    val decimalFormat:DecimalFormat= DecimalFormat("#.##")
     var x1:Float = 0.0f;var x2:Float = 0.0f;var y1:Float=0.0f;var y2:Float=0.0f
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when(event?.action){
@@ -61,14 +66,26 @@ class MainActivity2 : AppCompatActivity(),SensorEventListener {
         //registering listener the sensor
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
         sensorManager.registerListener(this,lightSensor,SensorManager.SENSOR_DELAY_NORMAL)
+        textView=findViewById(R.id.light_max)
+        textView.text="Maximum range : ${lightSensor.maximumRange.toString()}"
+
+        mChart=findViewById(R.id.linechart2)
+        commonSettings(Sensor.TYPE_LIGHT)
+        mChart.description.text="Light Sensor Data Visualization"
+        mChart.setDrawBorders(true)
+        startPlot()
+        decimalFormat.roundingMode= RoundingMode.DOWN
 
     }
 
     override fun onSensorChanged(p0: SensorEvent?) {
         if (p0?.sensor?.type == Sensor.TYPE_LIGHT) {
             val lightText: TextView = findViewById(R.id.light_Sensor)
-            lightText.text = "Light Value  = ${p0!!.values[0]}"
-
+            lightText.text = "Light Value  = ${p0!!.values[0]}lx"
+            if (plotData){
+                addEntry(p0)
+                plotData=false
+            }
         }
     }
 
@@ -76,6 +93,7 @@ class MainActivity2 : AppCompatActivity(),SensorEventListener {
 
     }
     override fun onDestroy() {
+        thread?.interrupt()
         sensorManager.unregisterListener(this)
         super.onDestroy()
     }

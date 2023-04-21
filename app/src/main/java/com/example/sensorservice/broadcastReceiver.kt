@@ -19,6 +19,7 @@ class broadcastReceiver:BroadcastReceiver(){
         val notification = NotificationCompat.Builder(p0,CHANNEL_ID)
             .setContentTitle("Survey")
             .setContentText("Click to complete the survey")
+            .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.sun)
         with(NotificationManagerCompat.from(p0)) {

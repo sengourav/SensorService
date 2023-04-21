@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity2">
 
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/linechart2"
+        android:layout_width="match_parent"
+        android:layout_height="200sp"
+        app:layout_constraintBottom_toTopOf="@+id/button2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/light_max"
+        app:layout_constraintVertical_bias="0.674" />
+
     <TextView
         android:id="@+id/light_Sensor"
         android:layout_width="wrap_content"
@@ -32,7 +43,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/light_Sensor"
 
-        app:layout_constraintVertical_bias="0.653" />
+        app:layout_constraintVertical_bias="0.784" />
 
     <Button
         android:id="@+id/button6"
@@ -41,11 +52,20 @@
         android:text="Stop the service"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button2"
-        app:layout_constraintVertical_bias="0.422" />
+        app:layout_constraintVertical_bias="0.371" />
 
+    <TextView
+        android:id="@+id/light_max"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="88dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.467"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/light_Sensor" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
