@@ -4,8 +4,6 @@ import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -13,38 +11,35 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
+import baseSettings
 import com.amplifyframework.AmplifyException
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.storage.s3.AWSS3StoragePlugin
-import com.example.sensorservice.databinding.ActivityMainBinding
 import java.io.File
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(),SensorEventListener {
-    lateinit var binding: ActivityMainBinding
+class MainActivity : baseSettings(),SensorEventListener {
     private var alarmMgr: AlarmManager?=null
     private lateinit var alarmIntent: PendingIntent
     val CHANNEL_ID = "MySensorServiceChannel"
     var name = "MyOtherChannel"
-
-    //lateinit var stop:Button
-    // lateinit var save:Button
+    lateinit var textView: TextView
+    val decimalFormat= DecimalFormat("#.##")
     lateinit var sensorManager: SensorManager
     lateinit var gyroSensor: Sensor
-    var x1: Float = 0.0f;
-    var x2: Float = 0.0f;
-    var y1: Float = 0.0f;
-    var y2: Float = 0.0f;
+    var x1: Float = 0.0f
+    var x2: Float = 0.0f
+    var y1: Float = 0.0f
+    var y2: Float = 0.0f
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
@@ -56,10 +51,10 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
                 x2 = event.x
                 y2 = event.y
                 if (x1 < x2) {
-                    val intent: Intent = Intent(this, MainActivity4::class.java)
+                    val intent = Intent(this, MainActivity4::class.java)
                     startActivity(intent)
                 } else {
-                    val i: Intent = Intent(this, MainActivity2::class.java)
+                    val i = Intent(this, MainActivity2::class.java)
                     startActivity(i)
                 }
             }
@@ -97,7 +92,6 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         sensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL)
-
         val save: Button = findViewById(R.id.collect_data)
         val stop: Button = findViewById(R.id.stop_collecting)
 
@@ -111,29 +105,41 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
 
             uploadFile()
         }
+        textView=findViewById(R.id.max_range)
+        textView.text="Maximum range : ${gyroSensor.maximumRange.toString()}"
+        mChart=findViewById(R.id.linechart1)
+        commonSettings(Sensor.TYPE_ACCELEROMETER)
+        mChart.description.text="Gyroscope Data Visualization"
+        mChart.setDrawBorders(true)
+        startPlot()
+        decimalFormat.roundingMode= RoundingMode.DOWN
     }
-
     override fun onSensorChanged(event: SensorEvent?) {
-        if (event?.sensor?.type == Sensor.TYPE_GYROSCOPE) {
-            val gyroText: TextView = findViewById(R.id.Gyro_Sensor)
-            gyroText.text =
-                "Gyro Value \nx= ${event!!.values[0]}\n\n" + "y = ${event.values[1]}\n\n" + "z = ${event.values[2]}"
-        }
+        if(event?.sensor?.type==Sensor.TYPE_GYROSCOPE){
+            val gyroText: TextView =findViewById(R.id.Gyro_Sensor)
+            gyroText.text = "Gyro Value\n x = ${decimalFormat.format(event.values[0])}rad/s\n\n" + "y = ${decimalFormat.format(event.values[1])}rad/s\n\n"+"z = ${decimalFormat.format(event.values[2])}rad/s"
+            if (plotData){
+                addEntry(event)
+                plotData=false}
 
+        }
     }
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-
+        TODO("Not yet implemented")
     }
 
+
+
     override fun onDestroy() {
+        thread?.interrupt()
         sensorManager.unregisterListener(this)
         super.onDestroy()
     }
 
     private fun configureAmplify() {
         try {
-            // Add these lines to add the AWSCognitoAuthPlugin and AWSS3StoragePlugin plugins
+            // Add these lines to add the AWSCognitoAuthPlugin and AWS S3StoragePlugin plugins
             Amplify.addPlugin(AWSCognitoAuthPlugin())
             Amplify.addPlugin(AWSS3StoragePlugin())
             Amplify.configure(applicationContext)
@@ -152,7 +158,7 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
         )
     }
 
-    public fun createNotificationChannel() {
+     fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mChannel =
                 NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT)
